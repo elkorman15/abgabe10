@@ -1,0 +1,68 @@
+<?xml version="1.0"?> 
+	
+<project name="übung10">
+<property file="build.properties"></property>
+	
+	<path id="externalLibs">
+		<pathelement location="${libs}/junit-4.10.jar" />
+		
+	</path>
+	
+	<!-- clean -->
+	    <target name="clean">
+	        <delete dir="${target}"/>
+	    </target>
+		
+		<!-- prepare everything -->
+	    <target name="prepare" description="prepare folder structure for compiling classes and generating documentation">
+			<mkdir dir="${target.java}" />
+			<mkdir dir="${target.junit}" />
+			<mkdir dir="${target.jar}" />
+	    </target>
+
+		<target name="compile" depends="prepare" description="compiles java sources">
+			<!-- compile java sources -->
+			<javac srcdir="${src.java}" destdir="${target.java}" includeantruntime="false" />
+			<!-- compile junit test sources -->
+			<javac srcdir="${src.junit}" destdir="${target.junit}" includeantruntime="false">
+				<classpath>
+					<pathelement location="${target.java}"/>
+					<path refid="externalLibs" /> <!-- are needed because junit is not standard implemented to jdk -->
+				</classpath>
+			</javac>
+		</target>
+
+		<!-- run all tests and complete script will halt on failure -->
+		<target name="test" depends="compile" description="testing the java source code" >
+		
+		
+			<junit> 
+				<classpath refid="externalLibs"> </classpath>
+					<test name="${src.junit}/JTest.java"></test>
+			</junit>
+			
+		</target>
+	
+	<!-- create jar file for later use -->
+    <target name="jar" depends="test" description="creates jar archive for deployement">
+       
+        <jar destfile="${target.jar}/Point2D.jar" >
+            <manifest>
+                <attribute name="Main-Class" value="at.fhj.itm.PointTester"/>
+            </manifest>
+			<fileset dir="${target.java}">
+				<include name="**/*.class" />
+			</fileset>
+        </jar>
+    </target>
+	
+	<target name="run" depends="jar" description="führt Ihre Anwendung aus">
+			<java jar="${target.jar}/Point2D.jar" output="output.txt" fork="true">
+				<arg value="distanceFrom"/>	
+				<arg value="5/2"/>	
+				<arg value="1/2"/>	
+			</java>
+		</target>
+	
+	
+</project>
